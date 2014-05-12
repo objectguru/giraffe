@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link href="css/style.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="js/jquery.imagesloaded.min.js"></script>
+<script type="text/javascript" src="js/jquery.ba-replacetext.min.js"></script>
+<script src="js/AC_ActiveX.js" type="text/javascript"></script>
+<script src="js/AC_RunActiveContent.js" type="text/javascript"></script>
+<script src="js/phaser.min.js" type="text/javascript"></script>
+<!--script src="http://api.html5media.info/1.1.5/html5media.min.js"></script-->
+</head>
+<body>
+<div style="float:left;">
+<a href="javascript:void(0)" onMouseUp="$('#BookSource').toggle()">Source</a>
+<div id="BookSource" style="width:300px; display:none" >
+<div id="BookTitle">The Girarffe</div>
+<div class="slide">Page01Sequence00.jpg,0,Next,fade,1,</div>
+<div class="slide">Page02Sequence01,sound</div>
+<div class="slide">Page02Sequence01.jpg,5,,fade,1,</div>
+<div class="slide">Page02Sequence02.jpg,1,Next,fade,1,</div>
+<div class="slide">Sequence03.ogg,sound</div>
+<div class="slide">Sequence03.jpg,1,,fade,1,</div>
+<div class="slide">Sequence04.jpg,0,,fade,1,</div>
+<div class="slide">Sequence05.jpg,0,,fade,1,</div>
+<div class="slide">Sequence06.jpg,0,,fade,1,</div>
+<div class="slide">Sequence07.jpg,,Next,fade,1,</div>
+<div class="slide">Sequence08.ogg,sound</div>
+<div class="slide">Sequence08.jpg,1,,fade,1,</div>
+<div class="slide">Sequence09.jpg,0,,fade,1,</div>
+<div class="slide">Sequence10.jpg,0,,fade,1,</div>
+<div class="slide">Sequence11.jpg,0,,fade,1,</div>
+<div class="slide">Sequence12.jpg,0,Next,fade,1,</div>
+<div class="slide">Sequence13.ogg,sound</div>
+<div class="slide">Sequence13.jpg,3,,fade,1,</div>
+<div class="slide">Sequence14.jpg,2,,fade,1,</div>
+<div class="slide">Sequence15.jpg,0,,fade,1,</div>
+<div class="slide">Sequence16.jpg,1,Next,fade,1,</div>
+<div class="slide">Sequence17.ogg,sound</div>
+<div class="slide">Sequence17.jpg,0,,fade,1,</div>
+</div>
+<div id="SoundPlayer" style="visibility:hidden"><br></div>
+<audio id="player" controls style=" width:150px; height:30px;" >
+<source src="Page02Sequence01.ogg" type="audio/ogg" >
+<source src="Page02Sequence01.m4a" type="audio/m4a" >
+</audio>
+<textarea id="SoundSource" style="visibility:hidden;width:200px;">
+</textarea><br>
+<textarea id="SoundSource2" style="visibility:hidden;width:200px;">
+<object width="200" height="20" data="player_mp3_mini.swf" type="application/x-shockwave-flash">
+<param value="player_mp3_mini.swf" name="movie">
+<param value="003867" name="bgcolor">
+<param value="mp3=XXXXXX&amp;autoplay=1" name="FlashVars">
+</object>
+</textarea>
+</div>
+<div class="middle" style="">
+<div style="margin-left:auto; margin-right:auto; width:300px" align="center" >
+<span id="TitleDisplay" style="font-SIZE:18px; font-weight: bold;" >
+Anima Mundi
+</span>
+</div> 
+<div class="content" style="position:relative">
+<div id="nav">
+<br>
+</div>
+<br />
+<div id="bgdiv" style="width:640px; height:380px; xborder:2px solid black; xbackground-color: #0066FF; position: absolute; top:50px; left:0px;">
+<img id="bgimg" src="" type="image/jpeg" width="640" height="360" >
+</div>
+<div id="imgdiv" style="width:640px; xbackground-color:#FF0000; position: absolute; top:50px; left:0px;">
+<img id="curimg" src="" type="image/jpeg" width="640" height="360" >
+</div>
+</div>
+</div>
+<script language="javascript">
+var piclist=new Array();
+var curslide=0;
+var prevpage="Page01";
+var audio=document.getElementById("player");
+	var music;
+	var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: loadpage, create: nada, update: nada });
+
+
+function nada(){
+}
+
+
+$(document).ready(function(){
+	$('#TitleDisplay').text($('#BookTitle').text());
+	loadpage();
+});	
+
+function loadpage() {
+	//=$('.page').eq(curslide-1).html();
+	$(".slide:contains('.jpg')").each(function(i) {
+		pic=$(this).text().split(",");
+		piclist.push(pic[0]);
+		//alert($(this).text());
+	});
+	//console.log("Preloading " + piclist);
+	if (piclist==null){return}
+	preload(piclist, function() { 
+	//nextslide($(".slide").eq(curslide).text().split(","));
+	nextslide(curslide);
+	});
+}
+
+function nextslide(slidenum){
+		$("#nav").html("<br>");
+		slideinfo=$(".slide").eq(slidenum).text().split(",");
+		if (slideinfo[1]=='sound'){
+			playsound(slideinfo[0]);
+			curslide++;
+			slidenum++;
+			slideinfo=$(".slide").eq(slidenum).text().split(",");
+		}
+	//console.log("slidenum " + slidenum);
+	//console.log("slideinfo " + slideinfo);
+		file=slideinfo[0];
+		slideduration=slideinfo[1];
+		linktext=slideinfo[2];
+		transition=slideinfo[3];
+		transitionduration=slideinfo[4];
+		pagename=file.substr(0,6);
+		//alert(pagename);
+		//if (slidenum>
+		//if (file.substr(0,6)!=prevpage) {prevage=file.substr(0,6);
+		$('#curimg').css('opacity',0);
+		$('#curimg').attr('src',file);
+		$('#curimg').animate({opacity:1},transitionduration*1000).delay(slideduration*1000).animate({opacity:1}, function() {
+			////$('#imgdiv').css({backgroundImage: 'url(' + window.location.pathname + '/' + file + ')'});
+			////$('#imgdiv').css({backgroundImage: 'url(' + file + ')'});
+			$('#bgimg').attr('src',file);
+	//console.log("bg set to " + $('#imgdiv').css('background-image'));
+			if (linktext>""){
+				//alert("prevpage="+prevpage);
+				//alert("slidetext="+$(".slide:contains('"+prevpage+"')").eq(0).text());
+				slidetext=$(".slide:contains('"+prevpage+"')").eq(0).text();
+				slidetext=slidetext.split(",");
+				//alert(slidetext[0]);
+				//prevjq='nextslide('+prevpagenum+')';
+				plusone=slidenum+1;
+				nextjq='nextslide('+plusone+')';
+				nextlink='<a href="javascript:void(0)" onmouseup="'+nextjq+'">'+linktext+'</a>';
+				//prevlink='<a href="javascript:void(0)" onmouseup="'+prevjq+'">'+linktext+'</a>';
+				$("#nav").html(nextlink);
+				//console.log("Nextlink " + nextlink); 
+				curslide++;
+				//console.log("Curslide " + curslide); 
+			} else {
+				nextslideinfo=$(".slide").eq(curslide+1).text().split(",");
+				if (nextslideinfo>""){
+					nextslide(curslide+1);
+					curslide++;
+					//console.log("Curslide " + curslide); 
+				} else {
+					$("#nav").html("<br>");
+				}
+			}
+		});
+}
+
+function preload(sources, callback) {
+    game.load.audio('Page02Sequence01', ['Page02Sequence01.mp3', 'Page02Sequence01.ogg']);
+	if(sources.length) {
+		var preloaderDiv = $('<div style="display: none;"></div>').prependTo(document.body);
+		$.each(sources, function(i,source) {
+		$("<img/>").attr("src", source).appendTo(preloaderDiv);
+		if(i == (sources.length-1)) {
+			$(preloaderDiv).imagesLoaded(function() {
+				$(this).remove();
+				if(callback) callback();
+			});
+		}
+		});
+	} else {
+		if(callback) callback();
+	}
+}
+
+function playsound(file){
+	//$('#SoundSource').text($('#SoundSource2').text());
+	//$('#SoundSource').replaceText('XXXXXX',file);
+	//$('#SoundPlayer').html($('#SoundSource').html());
+	
+	//$('source').attr('src',file);
+	//audio.pause();
+	//audio.load();
+	//audio.play();
+	
+    music = game.add.audio(file);
+    music.play();
+
+}
+</script>
+</body>
+</html>
+

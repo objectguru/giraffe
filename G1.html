@@ -1,0 +1,156 @@
+<!doctype html> 
+<html lang="en"> 
+<head> 
+	<meta charset="UTF-8" />
+    <title>Giraffe</title>
+	<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+	<script type="text/javascript" src="js/phaser.min.js"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+<script type="text/javascript">
+
+var music;
+var bg1; // bottom background
+var bg2; // top background
+var slidenum=0;
+var totalslides;
+var nextslide;
+var text; // button text
+var game = new Phaser.Game(1280, 720, Phaser.AUTO, 'phaser-display', { preload: preload, create: create, update: update });
+
+function preload() {
+
+	$(".slide.sprite").each(function(i) { // load sprite (visual) slides
+		pic=$(this).text().split(",");
+		//console.log("Preloading " + pic[0]);
+		game.load.image(pic[0], pic[0]); // the pic key is the same as the file name
+		totalslides=i; // used to determine if we are at the end of visual slides
+	});
+	
+	
+    game.load.audio('G1', ['Giraffe1.mp3', 'Giraffe1.ogg']); // load audio sprite sheet (multiple sounds strung together in one file)
+	music = game.add.audio('G1');
+	
+	$(".sound").each(function(i) { // create markers to the beginnings of each sound
+		sound=$(this).text().split(",");
+        music.addMarker(sound[0],sound[1],sound[2],sound[3],sound[4]) // the sound key is the same as the pic key without the file extension
+	});
+	
+    game.load.spritesheet('button', 'assets/buttons/flixel-button.png', 80, 20);
+    game.load.bitmapFont('nokia', 'assets/fonts/bitmapFonts/nokia16black.png', 'assets/fonts/bitmapFonts/nokia16black.xml');
+
+}
+
+function create() {
+	
+    bg1=game.add.sprite(0, 0, $(".slide").eq(0).text().split(",")[0]); //get intro screen name
+    bg2=game.add.sprite(3000, 3000, bg1.key); // display intro screen
+	makeButton('START', 400, 400);  // start button required as some mobile browsers will not play sounds without a click first
+
+}	
+
+function makeButton(name, x, y) {
+
+    var button = game.add.button(x, y, 'button', click, this, 0, 1, 2);
+    button.name = name;
+    button.scale.set(2, 1.5);
+    button.smoothed = false;
+
+    text = game.add.bitmapText(x, y + 7, 'nokia', name, 16);
+    text.x += (button.width / 2) - (text.textWidth / 2);
+	
+}
+
+
+function click(button) {
+
+	console.log("click " + button);
+	if (button>"") { // if there is a button specified, remove it. if not, we are showing multiple slides without interaction
+		music.stop(); // stop sound in case we are going to next slide before sound is over
+		text.destroy();
+		button.destroy();
+	}
+	slidenum+=1;
+    nextslide=$(".sprite").eq(slidenum).text().split(",");
+	console.log("nextslide " + nextslide);
+	if (nextslide[0]>"") {
+		bg2.loadTexture(nextslide[0],0); // load next slide into offscreen top background
+		bg2.alpha=0; // make top background invisible
+    	bg2.position.set(0, 0); // move top background into view
+        s = this.game.add.tween(bg2) // create fadein tween
+        s.to({ alpha: 1 }, nextslide[4]*1000, null) // set tween length
+        s.start();
+		s.onComplete.add(swapbg,this);  // after tween swap backgrounds
+	} else {
+	}
+	
+}
+
+function swapbg() {
+	soundname=nextslide[0].substr(0,nextslide[0].length-4); // remove the fil type extension (.jpg/.png/.gif)
+	soundname=$(".sound:contains("+soundname+")").text().split(",")[0]; // look through sound slides for one matching the sprite slide
+	console.log("soundname " + soundname);
+	if (soundname>"") {
+		music.play(soundname); // if there is a matching sound, play it
+	}
+    bg1.loadTexture(bg2.key, 0); // set underlying background to top background
+    bg2.position.set(3000, 3000); // move top background off screen
+	if (nextslide[2]>"") { // check next slide for presence of a button
+		makeButton(nextslide[2], 600, 600); // this creates the button that will show the next slide when clicked
+	} else {
+	    game.time.events.add(nextslide[1]*1000, click, this);
+		//click(); // this click puts up the next slide without waiting for a button press for showing multiple slides without interaction
+	}
+}
+
+function update() {
+
+}
+
+</script>
+
+<div id="phaser-display"></div>
+
+<!------------------------------------------------------------------------------------->
+<!------------------------------- BOOK PAGES ------------------------------------------>
+<!------------------------------------------------------------------------------------->
+<div xxxstyle="position:absolute; top:800px; height:100px;">
+    <a href="javascript:void(0)" onMouseUp="$('#BookSource').toggle()">Source</a>
+    <div id="BookSource" style="width:300px; display:none" >
+        <div id="BookTitle">The Giraffe</div>
+        <div class="slide sprite">Page01Sequence00.jpg,0,Start,fade,2,</div>
+        <div class="slide sprite">Page02Sequence01.jpg,5,,fade,2,</div>
+        <div class="slide sound">Page02Sequence01,0,9.5,1</div>
+        <div class="slide sprite">Page02Sequence02.jpg,1,Next,fade,2,</div>
+        <div class="slide sprite">Sequence03.jpg,1,,fade,1,</div>
+        <div class="slide sound">Sequence03,10,9.5,1</div>
+        <div class="slide sprite">Sequence04.jpg,0,,fade,1,</div>
+        <div class="slide sprite">Sequence05.jpg,0,,fade,1,</div>
+        <div class="slide sprite">Sequence06.jpg,0,,fade,1,</div>
+        <div class="slide sprite">Sequence07.jpg,,Next,fade,1,</div>
+        <div class="slide sprite">Sequence08.jpg,1,,fade,1,</div>
+        <div class="slide sound">Sequence08,20,9.5,1</div>
+        <div class="slide sprite">Sequence09.jpg,0,,fade,1,</div>
+        <div class="slide sprite">Sequence10.jpg,0,,fade,1,</div>
+        <div class="slide sprite">Sequence11.jpg,0,,fade,1,</div>
+        <div class="slide sprite">Sequence12.jpg,0,,fade,1,</div>
+        <!--div class="slide">Sequence13.jpg,3,,fade,1,</div>
+        <div class="slide sound">Sequence13,sound</div>
+        <div class="slide">Sequence14.jpg,2,,fade,1,</div>
+        <div class="slide">Sequence15.jpg,0,,fade,1,</div>
+        <div class="slide">Sequence16.jpg,1,Next,fade,1,</div>
+        <div class="slide">Sequence17.ogg,sound</div>
+        <div class="slide">Sequence17.jpg,0,,fade,1,</div-->
+    </div>
+</div>
+<!------------------------------------------------------------------------------------->
+<!------------------------------------------------------------------------------------->
+<!------------------------------------------------------------------------------------->
+</body>
+</html>
