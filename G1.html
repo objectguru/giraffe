@@ -5,6 +5,7 @@
     <title>Giraffe</title>
 	<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
 	<script type="text/javascript" src="js/phaser.min.js"></script>
+	<script type="text/javascript" src="js/ScaleManager.js"></script>
     <style type="text/css">
         body {
             margin: 0;
@@ -15,6 +16,21 @@
 
 <script type="text/javascript">
 
+function hideURLbar() {
+  var doc = window.document;
+  var docEl = doc.documentElement;
+
+  var requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+  var cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+
+  if(!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+    requestFullScreen.call(docEl);
+  }
+  else {
+    cancelFullScreen.call(doc);
+  }
+}
+
 var music;
 var bg1; // bottom background
 var bg2; // top background
@@ -22,19 +38,19 @@ var slidenum=0;
 var totalslides;
 var nextslide;
 var text; // button text
-var game = new Phaser.Game(1280, 720, Phaser.AUTO, 'phaser-display', { preload: preload, create: create, update: update });
+var game = new Phaser.Game(980, 551, Phaser.CANVAS, 'phaser-display', { preload: preload, create: create, update: update });
 
 function preload() {
 
 	$(".slide.sprite").each(function(i) { // load sprite (visual) slides
 		pic=$(this).text().split(",");
 		//console.log("Preloading " + pic[0]);
-		game.load.image(pic[0], pic[0]); // the pic key is the same as the file name
+		game.load.image(pic[0], "pics/" + pic[0]); // the pic key is the same as the file name
 		totalslides=i; // used to determine if we are at the end of visual slides
 	});
 	
 	
-    game.load.audio('G1', ['Giraffe1.mp3', 'Giraffe1.ogg']); // load audio sprite sheet (multiple sounds strung together in one file)
+    game.load.audio('G1', ['sound/Giraffe1.mp3', 'sound/Giraffe1.ogg']); // load audio sprite sheet (multiple sounds strung together in one file)
 	music = game.add.audio('G1');
 	
 	$(".sound").each(function(i) { // create markers to the beginnings of each sound
@@ -51,9 +67,21 @@ function create() {
 	
     bg1=game.add.sprite(0, 0, $(".slide").eq(0).text().split(",")[0]); //get intro screen name
     bg2=game.add.sprite(3000, 3000, bg1.key); // display intro screen
-	makeButton('START', 400, 400);  // start button required as some mobile browsers will not play sounds without a click first
+	makeButton('START', 800, 520);  // start button required as some mobile browsers will not play sounds without a click first
+	hideURLbar();
+}
 
-}	
+function fuller() {
+
+     alert(document.getElementById('phaser-display').requestFullscreen);
+	//var scale=new Phaser.ScaleManager(game, 980, 551);
+    // Stretch to fill
+    //Phaser.ScaleManager.EXACT_FIT;
+    game.scale.fullScreenScaleMode = Phaser.ScaleManager.EXACT_FIT;
+    game.scale.startFullScreen();
+	//game.stage.scale.forceLandscape = true;
+}
+
 
 function makeButton(name, x, y) {
 
@@ -93,16 +121,17 @@ function click(button) {
 }
 
 function swapbg() {
-	soundname=nextslide[0].substr(0,nextslide[0].length-4); // remove the fil type extension (.jpg/.png/.gif)
+	soundname=nextslide[0].substr(5,nextslide[0].length-9); // remove the "" and file type extension (.jpg/.png/.gif)
+	console.log("soundname1 " + soundname);
 	soundname=$(".sound:contains("+soundname+")").text().split(",")[0]; // look through sound slides for one matching the sprite slide
-	console.log("soundname " + soundname);
+	console.log("soundname2 " + soundname);
 	if (soundname>"") {
 		music.play(soundname); // if there is a matching sound, play it
 	}
     bg1.loadTexture(bg2.key, 0); // set underlying background to top background
     bg2.position.set(3000, 3000); // move top background off screen
 	if (nextslide[2]>"") { // check next slide for presence of a button
-		makeButton(nextslide[2], 600, 600); // this creates the button that will show the next slide when clicked
+		makeButton(nextslide[2], 800, 520); // this creates the button that will show the next slide when clicked
 	} else {
 	    game.time.events.add(nextslide[1]*1000, click, this);
 		//click(); // this click puts up the next slide without waiting for a button press for showing multiple slides without interaction
@@ -120,14 +149,14 @@ function update() {
 <!------------------------------------------------------------------------------------->
 <!------------------------------- BOOK PAGES ------------------------------------------>
 <!------------------------------------------------------------------------------------->
-<div xxxstyle="position:absolute; top:800px; height:100px;">
-    <a href="javascript:void(0)" onMouseUp="$('#BookSource').toggle()">Source</a>
+<div style="height:2000px;">
+    <!-- a href="javascript:void(0)" onMouseUp="$('#BookSource').toggle()">Source</a-->
     <div id="BookSource" style="width:300px; display:none" >
         <div id="BookTitle">The Giraffe</div>
-        <div class="slide sprite">Page01Sequence00.jpg,0,Start,fade,2,</div>
-        <div class="slide sprite">Page02Sequence01.jpg,5,,fade,2,</div>
-        <div class="slide sound">Page02Sequence01,0,9.5,1</div>
-        <div class="slide sprite">Page02Sequence02.jpg,1,Next,fade,2,</div>
+        <div class="slide sprite">Sequence00.jpg,0,Start,fade,2,</div>
+        <div class="slide sprite">Sequence01.jpg,5,,fade,2,</div>
+        <div class="slide sound">Sequence01,0,9.5,1</div>
+        <div class="slide sprite">Sequence02.jpg,1,Next,fade,2,</div>
         <div class="slide sprite">Sequence03.jpg,1,,fade,1,</div>
         <div class="slide sound">Sequence03,10,9.5,1</div>
         <div class="slide sprite">Sequence04.jpg,0,,fade,1,</div>
@@ -140,14 +169,15 @@ function update() {
         <div class="slide sprite">Sequence10.jpg,0,,fade,1,</div>
         <div class="slide sprite">Sequence11.jpg,0,,fade,1,</div>
         <div class="slide sprite">Sequence12.jpg,0,,fade,1,</div>
-        <!--div class="slide">Sequence13.jpg,3,,fade,1,</div>
+        <!--div class="slide sprite">Sequence13.jpg,3,,fade,1,</div>
         <div class="slide sound">Sequence13,sound</div>
-        <div class="slide">Sequence14.jpg,2,,fade,1,</div>
-        <div class="slide">Sequence15.jpg,0,,fade,1,</div>
-        <div class="slide">Sequence16.jpg,1,Next,fade,1,</div>
-        <div class="slide">Sequence17.ogg,sound</div>
-        <div class="slide">Sequence17.jpg,0,,fade,1,</div-->
+        <div class="slide sprite">Sequence14.jpg,2,,fade,1,</div>
+        <div class="slide sprite">Sequence15.jpg,0,,fade,1,</div>
+        <div class="slide sprite">Sequence16.jpg,1,Next,fade,1,</div>
+        <div class="slide sound">Sequence17.ogg,sound</div>
+        <div class="slide sprite">Sequence17.jpg,0,,fade,1,</div-->
     </div>
+    <br><br><a href="javascript:fuller()" ><span style="font-size:72px">Full</span></a>
 </div>
 <!------------------------------------------------------------------------------------->
 <!------------------------------------------------------------------------------------->
